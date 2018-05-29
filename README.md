@@ -1,2 +1,2 @@
 # OpenGL-homework-project
-49hut
+49HUT
