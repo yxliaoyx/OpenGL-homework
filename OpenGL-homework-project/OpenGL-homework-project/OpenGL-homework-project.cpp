@@ -7,54 +7,38 @@ using namespace std;
 #define CrBB 0.95//瞴籔瞴確玒计
 #define CrWB 0.9//鲤籔瞴確玒计
 #define t 0.001//–盎丁
-#define Max 21//程瞴计
+#define Max 100//程瞴计
 
 int window_width = 1280, window_height = 720;
-int center_x = window_width / 2;
-int center_y = window_height / 2;
-GLfloat player_x = 0;
-GLfloat player_y = 0;
-GLfloat player_z = 0;
-GLfloat rotation = 0;
-GLfloat look_up_down = 0;
-GLfloat mouse_last_x = window_width / 2;
-GLfloat mouse_last_y = window_height / 2;
+int center_x = window_width / 2, center_y = window_height / 2;
+GLfloat player_x = 0, player_y = 0, player_z = 0;
+GLfloat rotation = 0, look_up_down = 0;
+GLfloat mouse_last_x = window_width / 2, mouse_last_y = window_height / 2;
 bool reset_Mouse = false;
+bool cursor = true;
 
 struct Ball {
-	GLdouble x, y, z, vx, vy, vz, r;
+	GLdouble x, y, z, vx, vy, vz, r = 1;
 };
 Ball ball[Max];
+Ball bullet[10];
 
-int n = 0;
+int n = 10;
 
 void RandBall(int n) {
-	ball[n].x = rand() % 900 - 450;
-	ball[n].y = rand() % 450;
-	ball[n].z = rand() % 900 - 450;
-	ball[n].vx = rand() % 4000 - 2000;
-	ball[n].vy = rand() % 4000 - 2000;
-	ball[n].vz = rand() % 4000 - 2000;
-}
-
-void init(void) {
-	mouse_last_x = 640;
-	srand(time(NULL));
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
+	ball[n].x = 0;
+	ball[n].y = 0;
+	ball[n].z = 1;
+	ball[n].vx = 0;
+	ball[n].vy = 0;
+	ball[n].vz = 0;
 }
 
 void DrawBall(Ball ball) {
 	glPushMatrix();
 	glTranslated(ball.x, ball.y, ball.z);
-	if (ball.r < 40) {
-		glColor3f(0, 0, 1);
-	}
-	else {
-		glColor3f(1, 0, 0);
-	}
-	glutSolidSphere(ball.r, 20, 20);
+	glColor3f(0, 0, 1);
+	glutSolidSphere(ball.r, 10, 10);
 	glPopMatrix();
 }
 
@@ -116,15 +100,6 @@ void Collision(int i) {
 	}
 }
 
-void Drag(int i) {
-	double ax = ball[i].vx;
-	double ay = ball[i].vy;
-	double az = ball[i].vz;
-	ball[i].vx -= ax * t;
-	ball[i].vy -= ay * t;
-	ball[i].vz -= az * t;
-}
-
 void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_COLOR_MATERIAL);
@@ -137,10 +112,15 @@ void display(void) {
 	glutWireSphere(100, 30, 30);
 	glPopMatrix();
 
+	glPushMatrix();
+	glTranslated(10, 0, 0);
+	glColor3f(0, 0, 1);
+	glutSolidSphere(1, 10, 10);
+	glPopMatrix();
+
 	for (int i = 0; i < n; i++) {
 		DrawBall(ball[i]);
-		Collision(i);
-		Drag(i);
+		//Collision(i);
 		ball[i].x += ball[i].vx * t;
 		ball[i].y += ball[i].vy * t;
 		ball[i].z += ball[i].vz * t;
@@ -148,11 +128,15 @@ void display(void) {
 	glFlush();
 }
 
-void reshape(int w, int h) {
-	glViewport(0, 0, w, h);
+void reshape(int width, int height) {
+	window_width = width;
+	window_height = height;
+	mouse_last_x = center_x = window_width / 2;
+	mouse_last_y = center_y = window_height / 2;
+	glViewport(0, 0, window_width, window_height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(30, (GLfloat)w / h, 1, 5000);
+	gluPerspective(30, (GLfloat)window_width / window_height, 1, 5000);
 }
 
 void keyboard(unsigned char key, int x, int y) {
@@ -161,20 +145,26 @@ void keyboard(unsigned char key, int x, int y) {
 		player_x += cos(rotation);
 		player_z += sin(rotation);
 		break;
-
 	case 'a':
 		player_x += sin(rotation);
 		player_z -= cos(rotation);
 		break;
-
 	case 's':
 		player_x -= cos(rotation);
 		player_z -= sin(rotation);
 		break;
-
 	case 'd':
 		player_x -= sin(rotation);
 		player_z += cos(rotation);
+		break;
+	case 'q':
+		cursor = !cursor;
+		if (cursor) {
+			glutSetCursor(GLUT_CURSOR_CROSSHAIR);
+		}
+		else {
+			glutSetCursor(GLUT_CURSOR_NONE);
+		}
 		break;
 	}
 	glutPostRedisplay();
@@ -222,9 +212,12 @@ int main(int argc, char** argv) {
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(window_width, window_height);
 	glutCreateWindow("Project #2");
-	glutSetCursor(GLUT_CURSOR_CROSSHAIR);
+	glutSetCursor(GLUT_CURSOR_WAIT);
 	glutWarpPointer(center_x, center_y);
-	init();
+	srand(time(NULL));
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
