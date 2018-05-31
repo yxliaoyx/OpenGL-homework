@@ -1,15 +1,15 @@
 ﻿  OpenGL-homework-project.cpp
 c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(16): warning C4244: '正在初始化': 將 'int' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
-c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(133): warning C4244: '=': 將 'int' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
-c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(134): warning C4244: '=': 將 'int' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
-c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(179): warning C4244: '正在初始化': 將 'GLfloat' 轉換為 'int'，由於類型不同，可能導致資料遺失
-c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(180): warning C4244: '正在初始化': 將 'GLfloat' 轉換為 'int'，由於類型不同，可能導致資料遺失
-c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(182): warning C4244: '=': 將 'int' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
-c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(183): warning C4244: '=': 將 'int' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
-c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(185): warning C4244: '+=': 將 'double' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
-c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(187): warning C4244: '-=': 將 'double' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
-c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(201): warning C4244: '=': 將 'int' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
-c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(202): warning C4244: '=': 將 'int' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
-c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(216): warning C4244: '引數': 將 'time_t' 轉換為 'unsigned int'，由於類型不同，可能導致資料遺失
+c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(154): warning C4244: '=': 將 'int' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
+c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(155): warning C4244: '=': 將 'int' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
+c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(206): warning C4244: '正在初始化': 將 'GLfloat' 轉換為 'int'，由於類型不同，可能導致資料遺失
+c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(207): warning C4244: '正在初始化': 將 'GLfloat' 轉換為 'int'，由於類型不同，可能導致資料遺失
+c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(209): warning C4244: '=': 將 'int' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
+c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(210): warning C4244: '=': 將 'int' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
+c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(212): warning C4244: '+=': 將 'double' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
+c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(214): warning C4244: '-=': 將 'double' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
+c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(228): warning C4244: '=': 將 'int' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
+c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(229): warning C4244: '=': 將 'int' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
+c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(243): warning C4244: '引數': 將 'time_t' 轉換為 'unsigned int'，由於類型不同，可能導致資料遺失
   OpenGL-homework-project.vcxproj -> C:\Users\User\Documents\Projects\OpenGL-homework-project\OpenGL-homework-project\Debug\OpenGL-homework-project.exe
   OpenGL-homework-project.vcxproj -> C:\Users\User\Documents\Projects\OpenGL-homework-project\OpenGL-homework-project\Debug\OpenGL-homework-project.pdb (Partial PDB)

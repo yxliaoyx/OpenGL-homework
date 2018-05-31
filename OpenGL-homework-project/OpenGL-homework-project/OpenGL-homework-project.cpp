@@ -23,7 +23,20 @@ struct Ball {
 Ball ball[Max];
 Ball bullet[10];
 
-int n = 10;
+int n = 1;
+
+void createBullet(Ball & bullet) {
+	bullet.vx = cos(rotation) * 10;
+	bullet.vy = look_up_down * 10;
+	bullet.vz = sin(rotation) * 10;
+	bullet.x = player_x + bullet.vx;
+	bullet.y = player_y + bullet.vy;
+	bullet.z = player_z + bullet.vz;
+}
+
+void shoot() {
+	createBullet(bullet[0]);
+}
 
 void RandBall(int n) {
 	ball[n].x = 0;
@@ -113,17 +126,24 @@ void display(void) {
 	glPopMatrix();
 
 	glPushMatrix();
-	glTranslated(10, 0, 0);
-	glColor3f(0, 0, 1);
+	glTranslated(0, 0, 0);
+	glColor3f(1, 1, 1);
 	glutSolidSphere(1, 10, 10);
 	glPopMatrix();
 
+	glPushMatrix();
+	glTranslated(bullet[0].x, bullet[0].y, bullet[0].z);
+	glColor3f(0, 0, 1);
+	glutSolidSphere(1, 10, 10);
+	glPopMatrix();
+	//printf("%f", bullet[0].x);
+
 	for (int i = 0; i < n; i++) {
-		DrawBall(ball[i]);
+		DrawBall(bullet[i]);
 		//Collision(i);
-		ball[i].x += ball[i].vx * t;
-		ball[i].y += ball[i].vy * t;
-		ball[i].z += ball[i].vz * t;
+		bullet[i].x += bullet[i].vx * t;
+		bullet[i].y += bullet[i].vy * t;
+		bullet[i].z += bullet[i].vz * t;
 	}
 	glFlush();
 }
@@ -175,7 +195,13 @@ void Timer(int c) {
 	glutTimerFunc(1, Timer, 0);
 }
 
-void mouseMovementFunc(int x, int y) {
+void mouseButton(int button, int state, int x, int y) {
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+		shoot();
+	}
+}
+
+void mouseMove(int x, int y) {
 	if (reset_Mouse == false) {
 		int mouseDiffX = x - mouse_last_x;
 		int mouseDiffY = y - mouse_last_y;
@@ -221,7 +247,8 @@ int main(int argc, char** argv) {
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
-	glutPassiveMotionFunc(mouseMovementFunc);
+	glutMouseFunc(mouseButton);
+	glutPassiveMotionFunc(mouseMove);
 	glutTimerFunc(1, Timer, 0);
 	glutMainLoop();
 	return 0;
