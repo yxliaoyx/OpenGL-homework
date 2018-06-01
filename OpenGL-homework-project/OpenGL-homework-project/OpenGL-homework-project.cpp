@@ -13,7 +13,7 @@ Bullet player_bullet[max_bullet];
 Bullet enemy_bullet[max_bullet];
 
 int player_bullet_count = 0, enemy_bullet_count = 0;
-int window_width = 1280, window_height = 720, room_width = 1000, room_height = 100, room_length = 1000;
+int window_width = 1280, window_height = 720, room_length = 1000;
 int center_x = window_width / 2, center_y = window_height / 2;
 GLfloat player_x = 0, player_y = 0, player_z = 0;
 GLfloat rotation = 0, look_up_down = 0;
@@ -31,9 +31,9 @@ void createBullet(Bullet & bullet) {
 }
 
 void player_shoot(Bullet & bullet) {
-	bullet.vx = cos(rotation) * 500;
-	bullet.vy = look_up_down * 500;
-	bullet.vz = sin(rotation) * 500;
+	bullet.vx = cos(rotation) * 1500;
+	bullet.vy = look_up_down * 1500;
+	bullet.vz = sin(rotation) * 1500;
 	bullet.x = player_x + cos(rotation) * 10;
 	bullet.y = player_y + look_up_down * 10;
 	bullet.z = player_z + sin(rotation) * 10;
@@ -48,9 +48,10 @@ void player_shoot(Bullet & bullet) {
 //}
 
 bool edgeCollision(Bullet & bullet) {
-	if (bullet.x < -room_width / 2 || bullet.x > room_width / 2
-		|| bullet.y < -room_height / 2 || bullet.y > room_height / 2
-		|| bullet.z < -room_length / 2 || bullet.z > room_length / 2) {
+	int boundary = room_length / 2;
+	if (bullet.x < -boundary || bullet.x > boundary
+		|| bullet.y < -boundary || bullet.y > boundary
+		|| bullet.z < -boundary || bullet.z > boundary) {
 		return true;
 	}
 	else {
@@ -106,13 +107,34 @@ void display(void) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(player_x, player_y, player_z, player_x + cos(rotation), player_y + look_up_down, player_z + sin(rotation), 0, 1, 0);
+	//gluLookAt(0, 5000, 0, 0, 0, 0, 1, 0, 0);
 	
 	glPushMatrix();
-	glTranslated(0, 0, 0);
 	glColor3f(0, 1, 0);
-	glutSolidCube(500);
-	glColor3f(0, 0, 1);
+	glTranslated(player_x, player_y, player_z);
 	glutWireSphere(100, 30, 30);
+	glPopMatrix();
+
+	glPushMatrix();
+	glColor3f(0.5, 0.5, 0.5);
+	glTranslated(room_length, 0, 0);
+	glutSolidCube(room_length);
+	glTranslated(-room_length * 2, 0, 0);
+	glutSolidCube(room_length);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(0, -(room_length / 2 + 50), 0);
+	glColor3f(0.5, 0.5, 0.5);
+	glutSolidCube(room_length);
+	glPopMatrix();
+
+	glPushMatrix();
+	glColor3f(0.5, 0.5, 0.5);
+	glTranslated(0, 0, room_length);
+	glutSolidCube(room_length);
+	glTranslated(-0 * 2, 0, -room_length * 2);
+	glutSolidCube(1000);
 	glPopMatrix();
 
 	for (int i = 0; i < player_bullet_count; i++) {
@@ -164,7 +186,7 @@ void reshape(int width, int height) {
 	glViewport(0, 0, window_width, window_height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(30, (GLfloat)window_width / window_height, 1, 5000);
+	gluPerspective(30, (GLfloat)window_width / window_height, 1, 10000);
 }
 
 void keyboard(unsigned char key, int x, int y) {
