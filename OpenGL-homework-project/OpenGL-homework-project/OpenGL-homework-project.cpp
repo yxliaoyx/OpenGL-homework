@@ -15,10 +15,10 @@ Bullet enemy_bullet[max_bullet];
 int player_bullet_count = 0, enemy_bullet_count = 0;
 int window_width = 1280, window_height = 720, room_length = 1000;
 int center_x = window_width / 2, center_y = window_height / 2;
-GLfloat player_x = 0, player_y = 0, player_z = 0;
-GLfloat rotation = 0, look_up_down = 0;
-GLfloat mouse_last_x = window_width / 2, mouse_last_y = window_height / 2;
-GLfloat reloading = 0;
+double player_x = 0, player_y = 0, player_z = 0, player_y_velocity = 0;
+double rotation = 0, look_up_down = 0;
+double mouse_last_x = window_width / 2, mouse_last_y = window_height / 2;
+double reloading = 0;
 bool reset_Mouse = false, cursor = true;
 
 void createBullet(Bullet & bullet) {
@@ -108,7 +108,7 @@ void display(void) {
 	glLoadIdentity();
 	gluLookAt(player_x, player_y, player_z, player_x + cos(rotation), player_y + look_up_down, player_z + sin(rotation), 0, 1, 0);
 	//gluLookAt(0, 5000, 0, 0, 0, 0, 1, 0, 0);
-	
+
 	glPushMatrix();
 	glColor3f(0, 1, 0);
 	glTranslated(player_x, player_y, player_z);
@@ -116,7 +116,7 @@ void display(void) {
 	glPopMatrix();
 
 	glPushMatrix();
-	glColor3f(0.5, 0.5, 0.5);
+	glColor3f(0, 0.5, 0);
 	glTranslated(room_length, 0, 0);
 	glutSolidCube(room_length);
 	glTranslated(-room_length * 2, 0, 0);
@@ -130,7 +130,7 @@ void display(void) {
 	glPopMatrix();
 
 	glPushMatrix();
-	glColor3f(0.5, 0.5, 0.5);
+	glColor3f(0.5, 0, 0.5);
 	glTranslated(0, 0, room_length);
 	glutSolidCube(room_length);
 	glTranslated(-0 * 2, 0, -room_length * 2);
@@ -147,12 +147,20 @@ void display(void) {
 		glColor3f(1, 1, 1);
 		glutSolidSphere(1, 20, 20);
 		glPopMatrix();
-		
+
 		player_bullet[i].x += player_bullet[i].vx * t;
 		player_bullet[i].y += player_bullet[i].vy * t;
 		player_bullet[i].z += player_bullet[i].vz * t;
 	}
-	
+
+	player_y += player_y_velocity * t;
+	if (player_y > 0) {
+		player_y_velocity -= 9.8 * t;
+	}
+	else {
+		player_y = 0;
+	}
+
 	reloading -= t;
 	if (reloading > 0) {
 		glutSetCursor(GLUT_CURSOR_WAIT);
@@ -166,7 +174,7 @@ void display(void) {
 			glutSetCursor(GLUT_CURSOR_NONE);
 		}
 	}
-	
+
 	//for (int i = 0; i < n; i++) {
 	//	DrawBall(bullet[i]);
 	//	//Collision(i);
@@ -189,6 +197,23 @@ void reshape(int width, int height) {
 	gluPerspective(30, (GLfloat)window_width / window_height, 1, 10000);
 }
 
+void specialKey(int key, int x, int y) {
+	switch (key) {
+	case GLUT_KEY_UP:
+		glRotatef(5.0, 1, 0, 0);
+		break;
+	case GLUT_KEY_LEFT:
+		glRotatef(5.0, 0, 1, 0);
+		break;
+	case GLUT_KEY_DOWN:
+		glRotatef(-5.0, 1, 0, 0);
+		break;
+	case GLUT_KEY_RIGHT:
+		glRotatef(-5.0, 0, 1, 0);
+		break;
+	}
+}
+
 void keyboard(unsigned char key, int x, int y) {
 	switch (key) {
 	case 'w':
@@ -206,6 +231,11 @@ void keyboard(unsigned char key, int x, int y) {
 	case 'd':
 		player_x -= sin(rotation);
 		player_z += cos(rotation);
+		break;
+	case ' ':
+		if (player_y == 0) {
+			player_y_velocity = 10;
+		}
 		break;
 	case 'q':
 		cursor = !cursor;
@@ -231,9 +261,9 @@ void mouseButton(int button, int state, int x, int y) {
 
 void mouseMove(int x, int y) {
 	if (reset_Mouse == false) {
-		int mouseDiffX = x - mouse_last_x;
-		int mouseDiffY = y - mouse_last_y;
-		
+		double mouseDiffX = x - mouse_last_x;
+		double mouseDiffY = y - mouse_last_y;
+
 		mouse_last_x = x;
 		mouse_last_y = y;
 
@@ -246,7 +276,7 @@ void mouseMove(int x, int y) {
 		else if (look_up_down < -1) {
 			look_up_down = -1;
 		}
-		
+
 		if (mouse_last_x != center_x || mouse_last_y != center_y) {
 			reset_Mouse = true;
 		}
@@ -267,7 +297,7 @@ int main(int argc, char** argv) {
 	glutInitWindowSize(window_width, window_height);
 	glutCreateWindow("Project #2");
 	glutWarpPointer(center_x, center_y);
-	srand(time(NULL));
+	srand((unsigned)time(NULL));
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
@@ -277,6 +307,7 @@ int main(int argc, char** argv) {
 	glutMouseFunc(mouseButton);
 	glutPassiveMotionFunc(mouseMove);
 	glutTimerFunc(10, Timer, 0);
+
 	glutMainLoop();
 	return 0;
 }
