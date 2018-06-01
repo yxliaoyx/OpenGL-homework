@@ -13,7 +13,7 @@ Bullet player_bullet[max_bullet];
 Bullet enemy_bullet[max_bullet];
 
 int player_bullet_count = 0, enemy_bullet_count = 0;
-int window_width = 1280, window_height = 720;
+int window_width = 1280, window_height = 720, room_width = 1000, room_height = 100, room_length = 1000;
 int center_x = window_width / 2, center_y = window_height / 2;
 GLfloat player_x = 0, player_y = 0, player_z = 0;
 GLfloat rotation = 0, look_up_down = 0;
@@ -31,9 +31,9 @@ void createBullet(Bullet & bullet) {
 }
 
 void player_shoot(Bullet & bullet) {
-	bullet.vx = cos(rotation) * 100;
-	bullet.vy = look_up_down * 100;
-	bullet.vz = sin(rotation) * 100;
+	bullet.vx = cos(rotation) * 500;
+	bullet.vy = look_up_down * 500;
+	bullet.vz = sin(rotation) * 500;
 	bullet.x = player_x + cos(rotation) * 10;
 	bullet.y = player_y + look_up_down * 10;
 	bullet.z = player_z + sin(rotation) * 10;
@@ -48,7 +48,9 @@ void player_shoot(Bullet & bullet) {
 //}
 
 bool edgeCollision(Bullet & bullet) {
-	if (bullet.x < -500 || bullet.x > 500 || bullet.y < -50 || bullet.y > 50 || bullet.z < -500 || bullet.z > 500) {
+	if (bullet.x < -room_width / 2 || bullet.x > room_width / 2
+		|| bullet.y < -room_height / 2 || bullet.y > room_height / 2
+		|| bullet.z < -room_length / 2 || bullet.z > room_length / 2) {
 		return true;
 	}
 	else {
@@ -96,22 +98,6 @@ bool edgeCollision(Bullet & bullet) {
 //			}
 //		}
 //	}
-//	bool floor = false;
-//	if (ball[i].x - ball[i].r <= -500 || ball[i].x + ball[i].r >= 500) {
-//		ball[i].vx = -ball[i].vx * CrWB;
-//	}
-//	if (ball[i].y - ball[i].r <= -500 || ball[i].y + ball[i].r >= 500) {
-//		ball[i].vy = -ball[i].vy * CrWB;
-//		if (ball[i].y - ball[i].r <= -500) {
-//			floor = true;
-//		}
-//	}
-//	if (ball[i].z - ball[i].r <= -500 || ball[i].z + ball[i].r >= 500) {
-//		ball[i].vz = -ball[i].vz * CrWB;
-//	}
-//	if (!floor) {
-//		ball[i].vy += G * t;
-//	}
 //}
 
 void display(void) {
@@ -120,16 +106,13 @@ void display(void) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(player_x, player_y, player_z, player_x + cos(rotation), player_y + look_up_down, player_z + sin(rotation), 0, 1, 0);
+	
 	glPushMatrix();
 	glTranslated(0, 0, 0);
 	glColor3f(0, 1, 0);
+	glutSolidCube(500);
+	glColor3f(0, 0, 1);
 	glutWireSphere(100, 30, 30);
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslated(0, 0, 0);
-	glColor3f(1, 1, 1);
-	glutSolidSphere(1, 10, 10);
 	glPopMatrix();
 
 	for (int i = 0; i < player_bullet_count; i++) {
@@ -161,8 +144,7 @@ void display(void) {
 			glutSetCursor(GLUT_CURSOR_NONE);
 		}
 	}
-	printf("%f", reloading);
-
+	
 	//for (int i = 0; i < n; i++) {
 	//	DrawBall(bullet[i]);
 	//	//Collision(i);
