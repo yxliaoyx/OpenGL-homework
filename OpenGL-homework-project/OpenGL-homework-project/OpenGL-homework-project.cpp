@@ -12,11 +12,11 @@ Bullet player_bullet[max_bullet];
 Bullet teapothead_bullet[max_bullet];
 
 struct Teapothead {
-	double x, y, z, red, green, blue, rotation;
+	double x, y, z, red, green, blue, degree, trigger = 0, last_trigger = 0;
 };
 Teapothead teapothead[10];
 
-int teapothead_count = 10, player_bullet_count = 0, teapothead_bullet_count = 0;
+int teapothead_count = 1, player_bullet_count = 0, teapothead_bullet_count = 0;
 int window_width = 1280, window_height = 720, room_length = 1000;
 int center_x = window_width / 2, center_y = window_height / 2;
 double player_x = 0, player_y = 0, player_z = 0, player_y_velocity = 0;
@@ -42,7 +42,7 @@ void createTeapothead(void) {
 		teapothead[i].red = (double)rand() / RAND_MAX;
 		teapothead[i].green = (double)rand() / RAND_MAX;
 		teapothead[i].blue = (double)rand() / RAND_MAX;
-		teapothead[i].rotation = (double)rand() / RAND_MAX;
+		teapothead[i].degree = rand() / 360;
 	}
 }
 
@@ -59,8 +59,8 @@ void teapotheadShoot(Teapothead & teapothead, Bullet & bullet) {
 	bullet.x = teapothead.x;
 	bullet.y = teapothead.y;
 	bullet.z = teapothead.z;
-	bullet.vx = cos(teapothead.rotation) * 1500;
-	bullet.vz = sin(teapothead.rotation) * 1500;
+	bullet.vx = cos(teapothead.degree) * 1500;
+	bullet.vz = sin(teapothead.degree) * 1500;
 }
 
 //void DrawBullet(Bullet bullet) {
@@ -133,14 +133,14 @@ void display(void) {
 	gluLookAt(player_x, player_y, player_z, player_x + cos(rotation), player_y + look_up_down, player_z + sin(rotation), 0, 1, 0);
 	//gluLookAt(0, 5000, 0, 0, 0, 0, 1, 0, 0);
 
-	glPushMatrix();
+	/*glPushMatrix();
 	glColor3f(0, 1, 0);
 	glTranslated(player_x, player_y, player_z);
 	glutWireSphere(100, 30, 30);
-	glPopMatrix();
+	glPopMatrix();*/
 
 	glPushMatrix();
-	glColor3f(0, 0.5, 0);
+	glColor3f(0.5, 0.5, 0);
 	glTranslated(room_length, 0, 0);
 	glutSolidCube(room_length);
 	glTranslated(-room_length * 2, 0, 0);
@@ -162,14 +162,29 @@ void display(void) {
 	glPopMatrix();
 
 	for (int i = 0; i < teapothead_count; i++) {
+		double line_cos = cos(teapothead[i].degree / 57.29577951) * 1000;
+		double line_sin = sin(teapothead[i].degree / 57.29577951) * 1000;
 		glPushMatrix();
+		glBegin(GL_LINES);
+		glColor3f(1, 0, 0);
+		glVertex3f(teapothead[i].x + line_cos, teapothead[i].y - 5, teapothead[i].z - line_sin);
+		glVertex3f(teapothead[i].x - line_cos, teapothead[i].y - 5, teapothead[i].z + line_sin);
+		glEnd();
 		glTranslated(teapothead[i].x, teapothead[i].y, teapothead[i].z);
 		glColor3f(teapothead[i].red, teapothead[i].green, teapothead[i].blue);
+		glRotatef(teapothead[i].degree, 0, 1, 0);
 		glutSolidTeapot(10);
 		glTranslated(0, -50, 0);
 		glRotatef(270, 1, 0, 0);
 		glutSolidCone(10, 50, 3, 1);
 		glPopMatrix();
+		teapothead[i].degree += 1;
+
+		teapothead[i].last_trigger = teapothead[i].trigger;
+		teapothead[i].trigger = (teapothead[i].x - player_x) * line_cos + line_sin * (teapothead[i].y - player_y);
+		if (teapothead[i].last_trigger * teapothead[i].trigger < 0) {
+			printf("%d ", i);
+		}
 	}
 	
 	for (int i = 0; i < player_bullet_count; i++) {
@@ -190,7 +205,7 @@ void display(void) {
 
 	player_y += player_y_velocity * t;
 	if (player_y > 0) {
-		player_y_velocity -= 9.8 * t;
+		player_y_velocity -= 98 * t;
 	}
 	else {
 		player_y = 0;
@@ -269,7 +284,7 @@ void keyboard(unsigned char key, int x, int y) {
 		break;
 	case ' ':
 		if (player_y == 0) {
-			player_y_velocity = 10;
+			player_y_velocity = 50;
 		}
 		break;
 	case 'q':
@@ -281,7 +296,7 @@ void keyboard(unsigned char key, int x, int y) {
 
 void Timer(int c) {
 	glutPostRedisplay();
-	glutTimerFunc(10, Timer, 0);
+	glutTimerFunc(100, Timer, 0);
 }
 
 void mouseButton(int button, int state, int x, int y) {
