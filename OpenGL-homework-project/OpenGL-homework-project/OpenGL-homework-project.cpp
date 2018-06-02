@@ -3,22 +3,26 @@
 #include <time.h>
 using namespace std;
 
-#define t 0.01
 #define max_bullet 5
 
 struct Bullet {
 	GLdouble x, y, z, vx, vy, vz;
 };
 Bullet player_bullet[max_bullet];
-Bullet enemy_bullet[max_bullet];
+Bullet teapothead_bullet[max_bullet];
 
-int player_bullet_count = 0, enemy_bullet_count = 0;
+struct Teapothead {
+	double x, y, z, red, green, blue, rotation;
+};
+Teapothead teapothead[10];
+
+int teapothead_count = 10, player_bullet_count = 0, teapothead_bullet_count = 0;
 int window_width = 1280, window_height = 720, room_length = 1000;
 int center_x = window_width / 2, center_y = window_height / 2;
 double player_x = 0, player_y = 0, player_z = 0, player_y_velocity = 0;
 double rotation = 0, look_up_down = 0;
 double mouse_last_x = window_width / 2, mouse_last_y = window_height / 2;
-double reloading = 0;
+double t = 0.01, reloading = 0;
 bool reset_Mouse = false, cursor = true;
 
 void createBullet(Bullet & bullet) {
@@ -30,13 +34,33 @@ void createBullet(Bullet & bullet) {
 	bullet.vz = sin(rotation) * 100;
 }
 
-void player_shoot(Bullet & bullet) {
-	bullet.vx = cos(rotation) * 1500;
-	bullet.vy = look_up_down * 1500;
-	bullet.vz = sin(rotation) * 1500;
+void createTeapothead(void) {
+	for (int i = 0; i < teapothead_count; i++) {
+		teapothead[i].x = rand() % 900 - 450;
+		teapothead[i].y = 0;
+		teapothead[i].z = rand() % 900 - 450;
+		teapothead[i].red = (double)rand() / RAND_MAX;
+		teapothead[i].green = (double)rand() / RAND_MAX;
+		teapothead[i].blue = (double)rand() / RAND_MAX;
+		teapothead[i].rotation = (double)rand() / RAND_MAX;
+	}
+}
+
+void playerShoot(Bullet & bullet) {
 	bullet.x = player_x + cos(rotation) * 10;
 	bullet.y = player_y + look_up_down * 10;
 	bullet.z = player_z + sin(rotation) * 10;
+	bullet.vx = cos(rotation) * 1500;
+	bullet.vy = look_up_down * 1500;
+	bullet.vz = sin(rotation) * 1500;
+}
+
+void teapotheadShoot(Teapothead & teapothead, Bullet & bullet) {
+	bullet.x = teapothead.x;
+	bullet.y = teapothead.y;
+	bullet.z = teapothead.z;
+	bullet.vx = cos(teapothead.rotation) * 1500;
+	bullet.vz = sin(teapothead.rotation) * 1500;
 }
 
 //void DrawBullet(Bullet bullet) {
@@ -137,6 +161,17 @@ void display(void) {
 	glutSolidCube(1000);
 	glPopMatrix();
 
+	for (int i = 0; i < teapothead_count; i++) {
+		glPushMatrix();
+		glTranslated(teapothead[i].x, teapothead[i].y, teapothead[i].z);
+		glColor3f(teapothead[i].red, teapothead[i].green, teapothead[i].blue);
+		glutSolidTeapot(10);
+		glTranslated(0, -50, 0);
+		glRotatef(270, 1, 0, 0);
+		glutSolidCone(10, 50, 3, 1);
+		glPopMatrix();
+	}
+	
 	for (int i = 0; i < player_bullet_count; i++) {
 		if (edgeCollision(player_bullet[i])) {
 			player_bullet_count--;
@@ -251,7 +286,7 @@ void Timer(int c) {
 
 void mouseButton(int button, int state, int x, int y) {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && reloading == 0) {
-		player_shoot(player_bullet[player_bullet_count]);
+		playerShoot(player_bullet[player_bullet_count]);
 		player_bullet_count++;
 		if (player_bullet_count >= max_bullet) {
 			reloading = 2;
@@ -301,6 +336,7 @@ int main(int argc, char** argv) {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
+	createTeapothead();
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
