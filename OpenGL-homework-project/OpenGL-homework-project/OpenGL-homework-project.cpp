@@ -6,43 +6,48 @@ using namespace std;
 #define max_bullet 5
 
 struct Bullet {
-	GLdouble x, y, z, vx, vy, vz;
+	GLdouble x, y, z, x_velocity, y_velocity, z_velocity;
 };
 Bullet player_bullet[max_bullet];
 Bullet teapothead_bullet[max_bullet];
 
 struct Teapothead {
-	double x, y, z, red, green, blue, degree, trigger = 0, last_trigger = 0;
+	double x, y, z, red, green, blue;
 };
-Teapothead teapothead[10];
+Teapothead teapothead[100];
 
-int teapothead_count = 1, player_bullet_count = 0, teapothead_bullet_count = 0;
+int number_of_teapotheads = 0, number_of_player_bullets = 0, number_of_teapothead_bullets = 0;
 int window_width = 1280, window_height = 720, room_length = 1000;
 int center_x = window_width / 2, center_y = window_height / 2;
-double player_x = 0, player_y = 0, player_z = 0, player_y_velocity = 0;
-double rotation = 0, look_up_down = 0;
+double player_x = room_length / 3, player_y = 0, player_z = room_length / 3, player_y_velocity = 0;
+double rotation = 4, look_up_down = 0;
 double mouse_last_x = window_width / 2, mouse_last_y = window_height / 2;
 double t = 0.01, reloading = 0;
-bool reset_Mouse = false, cursor = true;
+bool reset_Mouse = false;
 
 void createBullet(Bullet & bullet) {
 	bullet.x = player_x + cos(rotation) * 10;
 	bullet.y = player_y + look_up_down * 10;
 	bullet.z = player_z + sin(rotation) * 10;
-	bullet.vx = cos(rotation) * 100;
-	bullet.vy = look_up_down * 100;
-	bullet.vz = sin(rotation) * 100;
+	bullet.x_velocity = cos(rotation) * 100;
+	bullet.y_velocity = look_up_down * 100;
+	bullet.z_velocity = sin(rotation) * 100;
 }
 
 void createTeapothead(void) {
-	for (int i = 0; i < teapothead_count; i++) {
-		teapothead[i].x = rand() % 900 - 450;
+	for (int i = 0; i < number_of_teapotheads; i++) {
 		teapothead[i].y = 0;
-		teapothead[i].z = rand() % 900 - 450;
+		if (i % 2) {
+			teapothead[i].x = rand() % (room_length - 30) - (room_length - 30) / 2;
+			teapothead[i].z = 30 - room_length / 2;
+		}
+		else {
+			teapothead[i].x = 30 - room_length / 2;
+			teapothead[i].z = rand() % (room_length - 30) - (room_length - 30) / 2;
+		}
 		teapothead[i].red = (double)rand() / RAND_MAX;
 		teapothead[i].green = (double)rand() / RAND_MAX;
 		teapothead[i].blue = (double)rand() / RAND_MAX;
-		teapothead[i].degree = rand() / 360;
 	}
 }
 
@@ -50,17 +55,17 @@ void playerShoot(Bullet & bullet) {
 	bullet.x = player_x + cos(rotation) * 10;
 	bullet.y = player_y + look_up_down * 10;
 	bullet.z = player_z + sin(rotation) * 10;
-	bullet.vx = cos(rotation) * 1500;
-	bullet.vy = look_up_down * 1500;
-	bullet.vz = sin(rotation) * 1500;
+	bullet.x_velocity = cos(rotation) * 1500;
+	bullet.y_velocity = look_up_down * 1500;
+	bullet.z_velocity = sin(rotation) * 1500;
 }
 
 void teapotheadShoot(Teapothead & teapothead, Bullet & bullet) {
 	bullet.x = teapothead.x;
 	bullet.y = teapothead.y;
 	bullet.z = teapothead.z;
-	bullet.vx = cos(teapothead.degree) * 1500;
-	bullet.vz = sin(teapothead.degree) * 1500;
+	bullet.x_velocity = player_x - teapothead.x;
+	bullet.z_velocity = player_z -teapothead.z;
 }
 
 //void DrawBullet(Bullet bullet) {
@@ -131,7 +136,7 @@ void display(void) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(player_x, player_y, player_z, player_x + cos(rotation), player_y + look_up_down, player_z + sin(rotation), 0, 1, 0);
-	//gluLookAt(0, 5000, 0, 0, 0, 0, 1, 0, 0);
+	//gluLookAt(0, 6000, 0, 0, 0, 0, 1, 0, 0);
 
 	/*glPushMatrix();
 	glColor3f(0, 1, 0);
@@ -161,46 +166,81 @@ void display(void) {
 	glutSolidCube(1000);
 	glPopMatrix();
 
-	for (int i = 0; i < teapothead_count; i++) {
-		double line_cos = cos(teapothead[i].degree / 57.29577951) * 1000;
-		double line_sin = sin(teapothead[i].degree / 57.29577951) * 1000;
+	for (int i = 0; i < number_of_teapotheads; i++) {
+		//double line_cos = cos(teapothead[i].degree / 57.29577951);
+		//double line_sin = sin(teapothead[i].degree / 57.29577951);
 		glPushMatrix();
-		glBegin(GL_LINES);
-		glColor3f(1, 0, 0);
-		glVertex3f(teapothead[i].x + line_cos, teapothead[i].y - 5, teapothead[i].z - line_sin);
-		glVertex3f(teapothead[i].x - line_cos, teapothead[i].y - 5, teapothead[i].z + line_sin);
-		glEnd();
 		glTranslated(teapothead[i].x, teapothead[i].y, teapothead[i].z);
 		glColor3f(teapothead[i].red, teapothead[i].green, teapothead[i].blue);
-		glRotatef(teapothead[i].degree, 0, 1, 0);
+		if (i % 2) {
+			glRotatef(270, 0, 1, 0);
+		}
 		glutSolidTeapot(10);
+		glutWireCube(20);
 		glTranslated(0, -50, 0);
 		glRotatef(270, 1, 0, 0);
 		glutSolidCone(10, 50, 3, 1);
 		glPopMatrix();
-		teapothead[i].degree += 1;
 
-		teapothead[i].last_trigger = teapothead[i].trigger;
-		teapothead[i].trigger = (teapothead[i].x - player_x) * line_cos + line_sin * (teapothead[i].y - player_y);
-		if (teapothead[i].last_trigger * teapothead[i].trigger < 0) {
-			printf("%d ", i);
+		printf("i %d ", i);
+		if (number_of_teapothead_bullets < max_bullet){
+			printf("FFF %d\n", number_of_teapothead_bullets);
+			teapotheadShoot(teapothead[i], teapothead_bullet[number_of_teapothead_bullets]);
+			number_of_teapothead_bullets++;
+		}
+
+		for (int j = 0; j < number_of_player_bullets; j++) {
+			if (player_bullet[j].x < teapothead[i].x + 10 && player_bullet[j].x > teapothead[i].x - 10
+				&& player_bullet[j].y < teapothead[i].y + 10 && player_bullet[j].y > teapothead[i].y - 10
+				&& player_bullet[j].z < teapothead[i].z + 10 && player_bullet[j].z > teapothead[i].z - 10) {
+				number_of_player_bullets--;
+				player_bullet[j] = player_bullet[number_of_player_bullets];
+				number_of_teapotheads--;
+				teapothead[i] = teapothead[number_of_teapotheads];
+			}
 		}
 	}
-	
-	for (int i = 0; i < player_bullet_count; i++) {
-		if (edgeCollision(player_bullet[i])) {
-			player_bullet_count--;
-			player_bullet[i] = player_bullet[player_bullet_count];
-		}
+
+	for (int i = 0; i < number_of_player_bullets; i++) {
 		glPushMatrix();
 		glTranslated(player_bullet[i].x, player_bullet[i].y, player_bullet[i].z);
 		glColor3f(1, 1, 1);
 		glutSolidSphere(1, 20, 20);
 		glPopMatrix();
 
-		player_bullet[i].x += player_bullet[i].vx * t;
-		player_bullet[i].y += player_bullet[i].vy * t;
-		player_bullet[i].z += player_bullet[i].vz * t;
+		player_bullet[i].x += player_bullet[i].x_velocity * t;
+		player_bullet[i].y += player_bullet[i].y_velocity * t;
+		player_bullet[i].z += player_bullet[i].z_velocity * t;
+
+		if (edgeCollision(player_bullet[i])) {
+			number_of_player_bullets--;
+			player_bullet[i] = player_bullet[number_of_player_bullets];
+		}
+	}
+
+	for (int i = 0; i < number_of_teapothead_bullets; i++) {
+		glPushMatrix();
+		glTranslated(teapothead_bullet[i].x, teapothead_bullet[i].y, teapothead_bullet[i].z);
+		glColor3f(0, 0, 0);
+		glutSolidSphere(1, 20, 20);
+		glPopMatrix();
+
+		teapothead_bullet[i].x += teapothead_bullet[i].x_velocity * t;
+		teapothead_bullet[i].y += teapothead_bullet[i].y_velocity * t;
+		teapothead_bullet[i].z += teapothead_bullet[i].z_velocity * t;
+
+		if (edgeCollision(teapothead_bullet[i])) {
+			printf("RRR %d\n", i);
+			printf("number_of_player_bullets %d\n", number_of_teapothead_bullets);
+			number_of_teapothead_bullets--;
+			teapothead_bullet[i] = teapothead_bullet[number_of_teapothead_bullets];
+			printf("number_of_player_bullets %d\n", number_of_teapothead_bullets);
+			printf("%lf %lf\n", teapothead_bullet[0].x, teapothead_bullet[0].z);
+			printf("%lf %lf\n", teapothead_bullet[1].x, teapothead_bullet[1].z);
+			printf("%lf %lf\n", teapothead_bullet[2].x, teapothead_bullet[2].z);
+			printf("%lf %lf\n", teapothead_bullet[3].x, teapothead_bullet[3].z);
+			printf("%lf %lf\n", teapothead_bullet[4].x, teapothead_bullet[4].z);
+		}
 	}
 
 	player_y += player_y_velocity * t;
@@ -217,22 +257,9 @@ void display(void) {
 	}
 	else {
 		reloading = 0;
-		if (cursor) {
-			glutSetCursor(GLUT_CURSOR_CROSSHAIR);
-		}
-		else {
-			glutSetCursor(GLUT_CURSOR_NONE);
-		}
+		glutSetCursor(GLUT_CURSOR_CROSSHAIR);
 	}
-
-	//for (int i = 0; i < n; i++) {
-	//	DrawBall(bullet[i]);
-	//	//Collision(i);
-	//	bullet[i].x += bullet[i].vx * t;
-	//	bullet[i].y += bullet[i].vy * t;
-	//	bullet[i].z += bullet[i].vz * t;
-	//}
-
+	printf("%d", number_of_teapothead_bullets);
 	glFlush();
 }
 
@@ -265,30 +292,29 @@ void specialKey(int key, int x, int y) {
 }
 
 void keyboard(unsigned char key, int x, int y) {
+	double cos_rotation = cos(rotation) * 5;
+	double sin_rotation = sin(rotation) * 5;
 	switch (key) {
 	case 'w':
-		player_x += cos(rotation);
-		player_z += sin(rotation);
+		player_x += cos_rotation;
+		player_z += sin_rotation;
 		break;
 	case 'a':
-		player_x += sin(rotation);
-		player_z -= cos(rotation);
+		player_x += sin_rotation;
+		player_z -= cos_rotation;
 		break;
 	case 's':
-		player_x -= cos(rotation);
-		player_z -= sin(rotation);
+		player_x -= cos_rotation;
+		player_z -= sin_rotation;
 		break;
 	case 'd':
-		player_x -= sin(rotation);
-		player_z += cos(rotation);
+		player_x -= sin_rotation;
+		player_z += cos_rotation;
 		break;
 	case ' ':
 		if (player_y == 0) {
 			player_y_velocity = 50;
 		}
-		break;
-	case 'q':
-		cursor = !cursor;
 		break;
 	}
 	glutPostRedisplay();
@@ -301,9 +327,9 @@ void Timer(int c) {
 
 void mouseButton(int button, int state, int x, int y) {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && reloading == 0) {
-		playerShoot(player_bullet[player_bullet_count]);
-		player_bullet_count++;
-		if (player_bullet_count >= max_bullet) {
+		playerShoot(player_bullet[number_of_player_bullets]);
+		number_of_player_bullets++;
+		if (number_of_player_bullets >= max_bullet) {
 			reloading = 2;
 		}
 	}
@@ -311,22 +337,19 @@ void mouseButton(int button, int state, int x, int y) {
 
 void mouseMove(int x, int y) {
 	if (reset_Mouse == false) {
-		double mouseDiffX = x - mouse_last_x;
-		double mouseDiffY = y - mouse_last_y;
-
+		double distance_x = x - mouse_last_x;
+		double distance_y = y - mouse_last_y;
 		mouse_last_x = x;
 		mouse_last_y = y;
+		rotation += distance_x * 0.005;
+		look_up_down -= distance_y * 0.005;
 
-		rotation += mouseDiffX * 0.01;
-
-		look_up_down -= mouseDiffY * 0.01;
 		if (look_up_down > 1) {
 			look_up_down = 1;
 		}
 		else if (look_up_down < -1) {
 			look_up_down = -1;
 		}
-
 		if (mouse_last_x != center_x || mouse_last_y != center_y) {
 			reset_Mouse = true;
 		}
@@ -335,17 +358,18 @@ void mouseMove(int x, int y) {
 		glutWarpPointer(center_x, center_y);
 		mouse_last_x = center_x;
 		mouse_last_y = center_y;
-
 		reset_Mouse = false;
 	}
 	glutPostRedisplay();
 }
 
 int main(int argc, char** argv) {
+	cout << "number of teapotheads: ";
+	cin >> number_of_teapotheads;
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(window_width, window_height);
-	glutCreateWindow("Project #2");
+	glutCreateWindow("Project #4");
 	glutWarpPointer(center_x, center_y);
 	srand((unsigned)time(NULL));
 	glEnable(GL_DEPTH_TEST);
@@ -357,7 +381,7 @@ int main(int argc, char** argv) {
 	glutKeyboardFunc(keyboard);
 	glutMouseFunc(mouseButton);
 	glutPassiveMotionFunc(mouseMove);
-	glutTimerFunc(10, Timer, 0);
+	//glutTimerFunc(10, Timer, 0);
 
 	glutMainLoop();
 	return 0;
