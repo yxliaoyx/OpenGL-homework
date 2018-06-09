@@ -22,13 +22,13 @@ int center_x = window_width / 2, center_y = window_height / 2;
 double player_x = room_length / 3, player_y = 0, player_z = room_length / 3, player_y_velocity = 0;
 double rotation = 4, look_up_down = 0;
 double mouse_last_x = window_width / 2, mouse_last_y = window_height / 2;
-double t = 0.005, reloading = 0;
+double t = 0.005;
 bool reset_Mouse = false, injured = false, dead = false;
 
 void randomVelocity(Teapothead & teapothead) {
-	teapothead.x_velocity = rand() % 100;
-	teapothead.y_velocity = rand() % 100;
-	teapothead.z_velocity = rand() % 100;
+	teapothead.x_velocity = rand() % 200 - 100;
+	teapothead.y_velocity = rand() % 200 - 100;
+	teapothead.z_velocity = rand() % 200 - 100;
 }
 
 void createTeapothead(void) {
@@ -127,11 +127,11 @@ void display(void) {
 	glTranslated(player_x + cos(rotation) * 10, player_y + look_up_down * 10 - 2, player_z + sin(rotation) * 10);
 	glRotated(rotation * 57.29577951, 0, -1, 0);
 	glScaled(0.01, 0.1, 10);
-	glutSolidCube(1);
+	glutSolidCube(1.5);
 	if (injured) {
-		glTranslated(0, 0, 0.5);
+		glTranslated(0, 0, 0.7);
 		glColor3f(1, 0, 0);
-		glutSolidCube(1.01);
+		glutSolidCube(1.51);
 	}
 	glPopMatrix();
 
@@ -173,7 +173,18 @@ void display(void) {
 				player_bullet[j] = player_bullet[number_of_player_bullets];
 				number_of_teapotheads--;
 				teapothead[i] = teapothead[number_of_teapotheads];
+				break;
 			}
+		}
+
+		if (teapothead[i].x < -room_length / 2 + 20 || teapothead[i].x > room_length / 2 - 20) {
+			teapothead[i].x_velocity = -teapothead[i].x_velocity;
+		}
+		if (teapothead[i].y < 0 || teapothead[i].y > room_length / 2) {
+			teapothead[i].y_velocity = -teapothead[i].y_velocity;
+		}
+		if (teapothead[i].z < -room_length / 2 + 20 || teapothead[i].z > room_length / 2 - 20) {
+			teapothead[i].z_velocity = -teapothead[i].z_velocity;
 		}
 	}
 
@@ -201,6 +212,7 @@ void display(void) {
 		if (edgeCollision(player_bullet[i])) {
 			number_of_player_bullets--;
 			player_bullet[i] = player_bullet[number_of_player_bullets];
+			break;
 		}
 	}
 
@@ -242,6 +254,7 @@ void display(void) {
 		if (edgeCollision(teapothead_bullet[i])) {
 			number_of_teapothead_bullets--;
 			teapothead_bullet[i] = teapothead_bullet[number_of_teapothead_bullets];
+			break;
 		}
 	}
 
@@ -253,12 +266,10 @@ void display(void) {
 		player_y = 0;
 	}
 
-	reloading -= t;
-	if (reloading > 0) {
+	if (number_of_player_bullets >= max_bullet) {
 		glutSetCursor(GLUT_CURSOR_WAIT);
 	}
 	else {
-		reloading = 0;
 		glutSetCursor(GLUT_CURSOR_CROSSHAIR);
 	}
 	glFlush();
@@ -322,12 +333,9 @@ void keyboard(unsigned char key, int x, int y) {
 }
 
 void mouseButton(int button, int state, int x, int y) {
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && reloading == 0) {
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && number_of_player_bullets < max_bullet) {
 		playerShoot(player_bullet[number_of_player_bullets]);
 		number_of_player_bullets++;
-		if (number_of_player_bullets >= max_bullet) {
-			reloading = 2;
-		}
 	}
 }
 

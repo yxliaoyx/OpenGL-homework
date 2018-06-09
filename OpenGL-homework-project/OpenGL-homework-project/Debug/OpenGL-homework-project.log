@@ -1,5 +1,4 @@
 ﻿  OpenGL-homework-project.cpp
 c:\users\user\documents\projects\opengl-homework-project\opengl-homework-project\opengl-homework-project\opengl-homework-project.cpp(149): warning C4244: '引數': 將 'double' 轉換為 'GLfloat'，由於類型不同，可能導致資料遺失
-cl : 命令列 warning D9028: 最少重建失敗，還原成一般建置
   OpenGL-homework-project.vcxproj -> C:\Users\User\Documents\Projects\OpenGL-homework-project\OpenGL-homework-project\Debug\OpenGL-homework-project.exe
   OpenGL-homework-project.vcxproj -> C:\Users\User\Documents\Projects\OpenGL-homework-project\OpenGL-homework-project\Debug\OpenGL-homework-project.pdb (Partial PDB)
