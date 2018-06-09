@@ -12,7 +12,7 @@ Bullet player_bullet[max_bullet];
 Bullet teapothead_bullet[max_bullet];
 
 struct Teapothead {
-	double x, y, z, red, green, blue;
+	double x, y, z, red, green, blue, x_velocity, y_velocity, z_velocity;
 };
 Teapothead teapothead[100];
 
@@ -23,7 +23,13 @@ double player_x = room_length / 3, player_y = 0, player_z = room_length / 3, pla
 double rotation = 4, look_up_down = 0;
 double mouse_last_x = window_width / 2, mouse_last_y = window_height / 2;
 double t = 0.005, reloading = 0;
-bool reset_Mouse = false;
+bool reset_Mouse = false, injured = false, dead = false;
+
+void randomVelocity(Teapothead & teapothead) {
+	teapothead.x_velocity = rand() % 100;
+	teapothead.y_velocity = rand() % 100;
+	teapothead.z_velocity = rand() % 100;
+}
 
 void createTeapothead(void) {
 	for (int i = 0; i < number_of_teapotheads; i++) {
@@ -39,6 +45,7 @@ void createTeapothead(void) {
 		teapothead[i].red = (double)rand() / RAND_MAX;
 		teapothead[i].green = (double)rand() / RAND_MAX;
 		teapothead[i].blue = (double)rand() / RAND_MAX;
+		randomVelocity(teapothead[i]);
 	}
 }
 
@@ -77,7 +84,7 @@ bool bulletCollision(Bullet bullet_1, Bullet bullet_2) {
 	double y_distance = (bullet_1.y - bullet_2.y) * (bullet_1.y - bullet_2.y);
 	double z_distance = (bullet_1.z - bullet_2.z) * (bullet_1.z - bullet_2.z);
 	printf("%lf\n", x_distance + y_distance + z_distance);
-	if (x_distance + y_distance + z_distance <= 3) {
+	if (x_distance + y_distance + z_distance <= 4) {
 		return true;
 	}
 	else {
@@ -91,7 +98,7 @@ void display(void) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(player_x, player_y, player_z, player_x + cos(rotation), player_y + look_up_down, player_z + sin(rotation), 0, 1, 0);
-	//gluLookAt(0, 6000, 0, 0, 0, 0, 1, 0, 0);
+	//gluLookAt(0, 2000, 0, 0, 0, 0, 1, 0, 0);
 
 	glPushMatrix();
 	glColor3f(0.5, 0.5, 0);
@@ -117,9 +124,24 @@ void display(void) {
 
 	glPushMatrix();
 	glColor3f(0, 1, 0);
-	glTranslated(player_x + cos(rotation) * 10, player_y + look_up_down * 10, player_z + sin(rotation) * 10);
-	glutSolidCube(2);
+	glTranslated(player_x + cos(rotation) * 10, player_y + look_up_down * 10 - 2, player_z + sin(rotation) * 10);
+	glRotated(rotation * 57.29577951, 0, -1, 0);
+	glScaled(0.01, 0.1, 10);
+	glutSolidCube(1);
+	if (injured) {
+		glTranslated(0, 0, 0.5);
+		glColor3f(1, 0, 0);
+		glutSolidCube(1.01);
+	}
 	glPopMatrix();
+
+	//if (dead) {
+	//	glPushMatrix();
+	//	glTranslated(player_x, player_y, player_z);
+	//	glColor3f(0, 0, 0);
+	//	glutSolidCube(10);
+	//	glPopMatrix();
+	//}
 
 	for (int i = 0; i < number_of_teapotheads; i++) {
 		glPushMatrix();
@@ -134,6 +156,10 @@ void display(void) {
 		glutSolidCone(10, 50, 3, 1);
 		glPopMatrix();
 
+		teapothead[i].x += teapothead[i].x_velocity * t;
+		teapothead[i].y += teapothead[i].y_velocity * t;
+		teapothead[i].z += teapothead[i].z_velocity * t;
+
 		if (number_of_teapothead_bullets < max_bullet && rand() % number_of_teapotheads == i) {
 			teapotheadShoot(teapothead[i], teapothead_bullet[number_of_teapothead_bullets]);
 			number_of_teapothead_bullets++;
@@ -141,7 +167,7 @@ void display(void) {
 
 		for (int j = 0; j < number_of_player_bullets; j++) {
 			if (player_bullet[j].x < teapothead[i].x + 10 && player_bullet[j].x > teapothead[i].x - 10
-				&& player_bullet[j].y < teapothead[i].y + 10 && player_bullet[j].y > teapothead[i].y - 10
+				&& player_bullet[j].y < teapothead[i].y + 10 && player_bullet[j].y > teapothead[i].y - 50
 				&& player_bullet[j].z < teapothead[i].z + 10 && player_bullet[j].z > teapothead[i].z - 10) {
 				number_of_player_bullets--;
 				player_bullet[j] = player_bullet[number_of_player_bullets];
@@ -197,6 +223,20 @@ void display(void) {
 				teapothead_bullet[i] = teapothead_bullet[number_of_teapothead_bullets];
 				break;
 			}
+		}
+
+		if (player_x - 10 < teapothead_bullet[i].x && player_x + 10 > teapothead_bullet[i].x
+			&& player_y - 50 < teapothead_bullet[i].y && player_y + 10 > teapothead_bullet[i].y
+			&& player_z - 10 < teapothead_bullet[i].z && player_z + 10 > teapothead_bullet[i].z) {
+			number_of_teapothead_bullets--;
+			teapothead_bullet[i] = teapothead_bullet[number_of_teapothead_bullets];
+			if (injured) {
+				dead = true;
+			}
+			else {
+				injured = true;
+			}
+			break;
 		}
 
 		if (edgeCollision(teapothead_bullet[i])) {
