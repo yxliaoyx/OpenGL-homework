@@ -70,14 +70,9 @@ void teapotheadShoot(Teapothead & teapothead, Bullet & bullet) {
 
 bool edgeCollision(Bullet bullet) {
 	int boundary = room_length / 2;
-	if (bullet.x < -boundary || bullet.x > boundary
+	return (bullet.x < -boundary || bullet.x > boundary
 		|| bullet.y < -boundary || bullet.y > boundary
-		|| bullet.z < -boundary || bullet.z > boundary) {
-		return true;
-	}
-	else {
-		return false;
-	}
+		|| bullet.z < -boundary || bullet.z > boundary);
 }
 
 void bulletCollision(void) {
@@ -104,7 +99,7 @@ void display(void) {
 	glLoadIdentity();
 	gluLookAt(player_x, player_y, player_z, player_x + cos(rotation), player_y + look_up_down, player_z + sin(rotation), 0, 1, 0);
 	
-	glPushMatrix();
+	glPushMatrix();//wall
 	glColor3f(0.5, 0.5, 0);
 	glTranslated(room_length, 0, 0);
 	glutSolidCube(room_length);
@@ -112,13 +107,13 @@ void display(void) {
 	glutSolidCube(room_length);
 	glPopMatrix();
 
-	glPushMatrix();
+	glPushMatrix();//floor
 	glTranslated(0, -(room_length / 2 + 50), 0);
 	glColor3f(0.5, 0.5, 0.5);
 	glutSolidCube(room_length);
 	glPopMatrix();
 
-	glPushMatrix();
+	glPushMatrix();//wall
 	glColor3f(0.5, 0, 0.5);
 	glTranslated(0, 0, room_length);
 	glutSolidCube(room_length);
@@ -126,7 +121,7 @@ void display(void) {
 	glutSolidCube(room_length);
 	glPopMatrix();
 
-	glPushMatrix();
+	glPushMatrix();//health bar
 	glColor3f(0, 1, 0);
 	glTranslated(player_x + cos(rotation) * 10, player_y + look_up_down * 10 - 2, player_z + sin(rotation) * 10);
 	glRotated(rotation * 57.29577951, 0, -1, 0);
