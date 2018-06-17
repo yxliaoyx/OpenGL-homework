@@ -368,7 +368,7 @@ int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(window_width, window_height);
-	glutCreateWindow("Project #4");
+	glutCreateWindow("Project #5");
 	glutWarpPointer(center_x, center_y);
 	srand((unsigned)time(NULL));
 	glEnable(GL_DEPTH_TEST);
