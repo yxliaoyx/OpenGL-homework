@@ -1,4 +1,6 @@
 #include <GL/glut.h>
+#include <al/alut.h>
+#include <al/al.h>
 #include <iostream>
 #include <time.h>
 using namespace std;
@@ -24,6 +26,8 @@ double rotation = 4, look_up_down = 0;
 double mouse_last_x = window_width / 2, mouse_last_y = window_height / 2;
 double t = 0.005, flying = 0;
 bool reset_Mouse = false, injured = false, dead = false;
+
+ALuint source1;
 
 void createTeapothead(void) {
 	number_of_teapotheads = input_number_of_teapotheads;
@@ -98,7 +102,7 @@ void display(void) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(player_x, player_y, player_z, player_x + cos(rotation), player_y + look_up_down, player_z + sin(rotation), 0, 1, 0);
-	
+
 	glPushMatrix();//wall
 	glColor3f(0.5, 0.5, 0);
 	glTranslated(room_length, 0, 0);
@@ -330,6 +334,7 @@ void mouseButton(int button, int state, int x, int y) {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && number_of_player_bullets < max_bullet) {
 		playerShoot(player_bullet[number_of_player_bullets]);
 		number_of_player_bullets++;
+		alSourcePlay(source1);
 	}
 }
 
@@ -366,6 +371,11 @@ int main(int argc, char** argv) {
 	cin >> input_number_of_teapotheads;
 	createTeapothead();
 	glutInit(&argc, argv);
+	alutInit(&argc, argv);
+	ALuint buffer1 = alutCreateBufferFromFile("gunshot.wav");
+	alGenSources(1, &source1);
+	alSourcei(source1, AL_BUFFER, buffer1);
+
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(window_width, window_height);
 	glutCreateWindow("Project #5");
