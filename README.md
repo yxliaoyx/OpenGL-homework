@@ -1,4 +1,4 @@
-# OpenGL-homework-project
+# OpenGL-homework
 Game of Balls Life https://youtu.be/xwFvJOM78Ko
 
 Teapothead: SUPERHEART https://youtu.be/lvWc6OWpVIA
